@@ -7,13 +7,30 @@ const path = require("path");
  */
 module.exports = async function postprocess({
 	code,
-	targetName,
+	runMode,
 	compilationMode,
 }) {
-	await processCss().catch((err) => {
+	let css = await processCss().catch((err) => {
 		console.error("Error processing CSS", err);
 		throw err;
 	});
+
+	switch (runMode) {
+		case "build":
+			const distFilePath = path.join(__dirname, "..", "dist", "main.css");
+			fs.writeFileSync(distFilePath, css);
+			break;
+		case "hot":
+			// remove all new lines in css
+
+			// code = code.replace("'{{css}}'", `\`${css}\`);
+
+			css = css.replace(/'/g, "\\'").replace(/`/g, "'").replace(/\$/g, "\\$");
+
+			// Replace the argument passed to `foo` with the CSS content
+			code = code.replace("('{{css}}')", `(\`${css}\`)`);
+			break;
+	}
 	switch (compilationMode) {
 		case "standard":
 		case "debug":
@@ -39,9 +56,5 @@ async function processCss() {
 		to: "dist/main.css",
 	});
 
-	console.log("RESULT", result);
-
-	const distFilePath = path.join(__dirname, "..", "dist", "main.css");
-
-	fs.writeFileSync(distFilePath, result.css);
+	return result.css;
 }
