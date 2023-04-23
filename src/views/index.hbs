@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <link id="css" rel="stylesheet" href="/dist/main.css">
+  <script src="/dist/main.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    Elm.Main.init({
+      node: document.getElementById('app'),
+    });
+  </script>
+
+  <script>
+    const socket = new WebSocket('ws://localhost:3000/dev-server');
+
+    socket.onopen = () => {
+      console.log("Connected to dev server");
+    };
+
+    socket.onmessage = () => {
+      console.log("Received message from dev server");
+      console.log("Updating CSS");
+      const link = document.getElementById('css');
+      const href = link.getAttribute('href');
+      const newHref = href.replace(/\?.*$/, '') + '?' + Date.now();
+      link.setAttribute('href', newHref);
+    };
+
+    socket.onclose = () => {
+      console.log("Disconnected from dev server");
+    };
+  </script>
+</body>
+</html>
