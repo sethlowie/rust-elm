@@ -39,6 +39,7 @@ fn register_handlebars() -> Data<Handlebars<'static>> {
 async fn main() -> std::io::Result<()> {
     let handlebars_ref = register_handlebars();
     let config = configuration::get_configuration();
+    let port = config.port;
     HttpServer::new(move || {
         App::new()
             .app_data(handlebars_ref.clone())
@@ -48,7 +49,7 @@ async fn main() -> std::io::Result<()> {
             .service(fs::Files::new("/dist", "./dist").show_files_listing())
     })
     // TODO: configurable port
-    .bind(("127.0.0.1", 3000))?
+    .bind(("127.0.0.1", port))?
     .run()
     .await
 }

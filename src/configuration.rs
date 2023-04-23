@@ -1,20 +1,21 @@
 #[derive(Clone)]
 pub struct Configuration {
     pub is_production: bool,
-}
-
-pub fn get_configuration() -> Configuration {
-    Configuration {
-        is_production: is_production(),
-    }
+    pub port: u16,
 }
 
 #[cfg(feature = "dev")]
-fn is_production() -> bool {
-    false
+pub fn get_configuration() -> Configuration {
+    Configuration {
+        is_production: false,
+        port: 3000,
+    }
 }
 
 #[cfg(not(feature = "dev"))]
-fn is_production() -> bool {
-    true
+pub fn get_configuration() -> Configuration {
+    Configuration {
+        is_production: true,
+        port: 80,
+    }
 }
