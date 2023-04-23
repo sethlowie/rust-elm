@@ -47,7 +47,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(config.clone()))
             // index route
             .route("/", web::get().to(index))
-            .service(fs::Files::new("/dist", "./dist").show_files_listing())
+            .service(fs::Files::new("/", "./dist").show_files_listing())
     })
     // TODO: configurable port
     .bind((addr, port))?
