@@ -88,8 +88,8 @@ view model =
             , p []
                 [ text "With only a few JavaScript files to manage, including the primary Elm app and third-party JavaScript files, you'll find it easier to maintain and optimize caching. We'll also be sharing a detailed guide on caching Elm applications to help you further enhance your app's performance." ]
             ]
-        , div [ class "h-screen flex p-10 flex-col text-left items-center justify-center space-y-2" ]
-            [ div [ class "text-slate-800 mt-12 text-2xl w-full" ]
+        , div [ class "flex p-10 flex-col text-left items-center justify-center space-y-2" ]
+            [ div [ class "text-slate-800 text-2xl w-full" ]
                 [ text "Experience the Power of TailwindCSS"
                 ]
             , p []
