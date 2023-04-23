@@ -10,8 +10,9 @@
     "dev:elm": "elm-watch hot",
     "dev:rust": "cargo run --features dev",
     "dev": "conc -n elm,rust -c blue,green \"npm run dev:elm\" \"npm run dev:rust\"",
-    "reboot": "npm run build && lsof -t -i :80 | xargs -r kill -9 && npm start &",
+    "reboot": "npm run build && lsof -t -i :80 | xargs -r kill -9 && npm run start:background",
     "start": "./target/release/rust-elm",
+    "start:background": "./target/release/rust-elm &",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
