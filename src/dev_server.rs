@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant, SystemTime};
 
 use actix::prelude::*;
-use actix_web::{web, App, Error, HttpRequest, HttpResponse};
+use actix_web::{web, Error, HttpRequest, HttpResponse};
 use actix_web_actors::ws;
 use std::fs;
 

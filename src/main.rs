@@ -16,18 +16,23 @@ async fn index(handlebars: web::Data<Handlebars<'_>>) -> HttpResponse {
     HttpResponse::Ok().body(body)
 }
 
+// We need a good way to know if we are running in dev mode or not.
+// env var, cli flags, etc.
 fn is_dev() -> bool {
     true
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
+fn register_handlebars() -> Handlebars<'static> {
     let mut handlebars = Handlebars::new();
     handlebars
         .register_templates_directory(".hbs", "./src/views")
         .unwrap();
+    handlebars
+}
 
-    let handlebars_ref = web::Data::new(handlebars);
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    let handlebars_ref = register_handlebars();
     HttpServer::new(move || {
         let mut app = App::new();
 
@@ -43,6 +48,7 @@ async fn main() -> std::io::Result<()> {
             .route("/", web::get().to(index))
             .service(fs::Files::new("/dist", "./dist").show_files_listing())
     })
+    // TODO: configurable port
     .bind(("127.0.0.1", 3000))?
     .run()
     .await
