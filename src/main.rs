@@ -15,8 +15,8 @@ async fn index(
     config: web::Data<Configuration>,
 ) -> HttpResponse {
     match serde_json::to_string(&flags::Flags {
-        title: "Hello, world!".to_string(),
-        description: "This is a description".to_string(),
+        title: "Rust Elm".to_string(),
+        description: "Production ready web apps with Elm, Rust, and TailwindCSS".to_string(),
     }) {
         Ok(flags) => {
             let json = json!({ "flags": flags, "isProd": config.is_production });

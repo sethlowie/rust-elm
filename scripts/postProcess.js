@@ -16,6 +16,10 @@ const options = {
 	},
 };
 
+// Keep track of the previous CSS so we can avoid injecting
+// the refresh script if the CSS hasn't changed.
+let prevCss = "";
+
 /**
  * @type {import("elm-watch/elm-watch-node").Postprocess}
  */
@@ -24,14 +28,16 @@ module.exports = async function postprocess({
 	runMode,
 	compilationMode,
 }) {
+	const watchFilePath = path.join(__dirname, "..", "dist", "watch.js");
+	fs.writeFileSync(watchFilePath, code);
 	let css = await processCss().catch((err) => {
 		console.error("Error processing CSS", err);
 		throw err;
 	});
 
+	const distFilePath = path.join(__dirname, "..", "dist", "main.css");
 	switch (runMode) {
 		case "make":
-			const distFilePath = path.join(__dirname, "..", "dist", "main.css");
 			fs.writeFileSync(distFilePath, css);
 			const res = uglifyjs.minify(code, options);
 			if (res.error) {
@@ -39,14 +45,33 @@ module.exports = async function postprocess({
 			}
 			return res.code;
 		case "hot":
-			// remove all new lines in css
+			const cssCode = fs.readFileSync(
+				path.join(__dirname, "replaceCss.js"),
+				"utf8",
+			);
 
-			// code = code.replace("'{{css}}'", `\`${css}\`);
+			// If the CSS hasn't change we can skip the rest of the
+			// hot reload processing.
+			if (prevCss === css) {
+				return code;
+			}
 
-			css = css.replace(/'/g, "\\'").replace(/`/g, "'").replace(/\$/g, "\\$");
-
-			// Replace the argument passed to `foo` with the CSS content
-			code = code.replace("('{{css}}')", `(\`${css}\`)`);
+			fs.writeFileSync(distFilePath, css);
+			prevCss = css;
+			let key = "var reloadReasons = [];";
+			let parts = code.split("\n");
+			let newCode = [];
+			for (let i = 0; i < parts.length; i++) {
+				const p = parts[i];
+				if (p.indexOf(key) > -1) {
+					newCode.push(p);
+					newCode.push(cssCode);
+					newCode.push("replaceCss();");
+				} else {
+					newCode.push(p);
+				}
+			}
+			code = newCode.join("\n");
 			break;
 	}
 	switch (compilationMode) {
@@ -69,6 +94,7 @@ async function processCss() {
 	const result = await postcss([
 		require("tailwindcss"),
 		require("autoprefixer"),
+		require("postcss-minify"),
 	]).process(cssFile, {
 		from: "src/main.css",
 		to: "dist/main.css",
