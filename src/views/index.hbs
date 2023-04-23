@@ -3,13 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Build web apps with Elm+Rust+TailwindCSS">
   <script src="/dist/main.js"></script>
+  {{#if isProd}}
+  <link rel="stylesheet" href="/dist/main.css">
+  {{/if}}
 </head>
 <body>
   <div id="app"></div>
   <script>
     Elm.Main.init({
       node: document.getElementById('app'),
+      flags: {{{flags}}}
     });
   </script>
 </body>

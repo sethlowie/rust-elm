@@ -1,6 +1,20 @@
 const postcss = require("postcss");
 const fs = require("fs");
 const path = require("path");
+const uglifyjs = require("uglify-js");
+
+const options = {
+	compress: {
+		passes: 3,
+	},
+	mangle: {
+		toplevel: true,
+	},
+	output: {
+		beautify: false,
+		comments: false,
+	},
+};
 
 /**
  * @type {import("elm-watch/elm-watch-node").Postprocess}
@@ -16,10 +30,14 @@ module.exports = async function postprocess({
 	});
 
 	switch (runMode) {
-		case "build":
+		case "make":
 			const distFilePath = path.join(__dirname, "..", "dist", "main.css");
 			fs.writeFileSync(distFilePath, css);
-			break;
+			const res = uglifyjs.minify(code, options);
+			if (res.error) {
+				throw new Error(res.error);
+			}
+			return res.code;
 		case "hot":
 			// remove all new lines in css
 

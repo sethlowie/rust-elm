@@ -1,21 +1,30 @@
-// check deps fn
-// - elm-watch
+mod configuration;
+mod flags;
 
 use actix_files as fs;
 use actix_web::{
     web::{self, Data},
     App, HttpResponse, HttpServer,
 };
+use configuration::Configuration;
 use handlebars::Handlebars;
 use serde_json::json;
 
-async fn index(handlebars: web::Data<Handlebars<'_>>) -> HttpResponse {
-    let json = json!({
-        "title": "My New Post",
-        "body": "This is my first post!"
-    });
-    let body = handlebars.render("index", &json).unwrap();
-    HttpResponse::Ok().body(body)
+async fn index(
+    handlebars: web::Data<Handlebars<'_>>,
+    config: web::Data<Configuration>,
+) -> HttpResponse {
+    match serde_json::to_string(&flags::Flags {
+        title: "Hello, world!".to_string(),
+        description: "This is a description".to_string(),
+    }) {
+        Ok(flags) => {
+            let json = json!({ "flags": flags, "isProd": config.is_production });
+            let body = handlebars.render("index", &json).unwrap();
+            HttpResponse::Ok().body(body)
+        }
+        Err(_) => HttpResponse::InternalServerError().body("Failed to parse flags"),
+    }
 }
 
 fn register_handlebars() -> Data<Handlebars<'static>> {
@@ -29,9 +38,11 @@ fn register_handlebars() -> Data<Handlebars<'static>> {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let handlebars_ref = register_handlebars();
+    let config = configuration::get_configuration();
     HttpServer::new(move || {
         App::new()
             .app_data(handlebars_ref.clone())
+            .app_data(web::Data::new(config.clone()))
             // index route
             .route("/", web::get().to(index))
             .service(fs::Files::new("/dist", "./dist").show_files_listing())
