@@ -7,6 +7,7 @@
     "build:elm": "elm-watch make --optimize",
     "build:rust": "cargo build --release",
     "build": "conc -n elm,rust -c blue,green \"npm run build:elm\" \"npm run build:rust\"",
+    "postbuild": "cp -R public/* dist/",
     "dev:elm": "elm-watch hot",
     "dev:rust": "cargo run --features dev",
     "dev": "conc -n elm,rust -c blue,green \"npm run dev:elm\" \"npm run dev:rust\"",
