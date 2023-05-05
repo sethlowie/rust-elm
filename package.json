@@ -6,11 +6,13 @@
   "scripts": {
     "build:elm": "elm-watch make --optimize",
     "build:rust": "cargo build --release",
+    "build:ts": "tsc && vite build",
     "build": "conc -n elm,rust -c blue,green \"npm run build:elm\" \"npm run build:rust\"",
     "postbuild": "cp -R public/* dist/",
     "dev:elm": "elm-watch hot",
     "dev:rust": "cargo run --features dev",
-    "dev": "conc -n elm,rust -c blue,green \"npm run dev:elm\" \"npm run dev:rust\"",
+    "dev:ts": "vite build --watch",
+    "dev": "conc -n elm,rust,vite -c blue,green,magenta \"npm run dev:elm\" \"npm run dev:rust\" \"npm run dev:ts\"",
     "reboot": "npm run build && lsof -t -i :80 | xargs -r kill -9 && npm run start:background",
     "start": "./target/release/rust-elm",
     "start:background": "./target/release/rust-elm &",
@@ -25,6 +27,8 @@
     "postcss-discard-comments": "^6.0.0",
     "postcss-minify": "^1.1.0",
     "tailwindcss": "^3.3.1",
-    "uglify-js": "^3.17.4"
+    "typescript": "^5.0.4",
+    "uglify-js": "^3.17.4",
+    "vite": "^4.3.5"
   }
 }
